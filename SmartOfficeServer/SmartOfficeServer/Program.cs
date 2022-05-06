@@ -1,6 +1,8 @@
 using SmartOfficeServer;
 using System.Text.RegularExpressions;
 
+const string RegexPath = @"^/([0-9]+)/(\w+)/?\w*$";
+
 var builder = WebApplication.CreateBuilder();
 var app = builder.Build();
 
@@ -21,13 +23,12 @@ void Coffee(IApplicationBuilder app)
 
     app.Run(async context =>
     {
-        string regexPath = @"^/([0-9]+)/(\w+)/?\w*$";
         var request = context.Request;
         var response = context.Response;
         response.Headers.ContentLanguage = "ru-RU";
         response.ContentType = "text/plain; charset=utf-8";
         string path = request.Path;
-        if (Regex.IsMatch(path, regexPath))
+        if (Regex.IsMatch(path, RegexPath))
         {
             string[] splitPath = path.Split('/');
             CoffeeMachine machine = coffeeMachines[int.Parse(splitPath[1])];
@@ -66,7 +67,64 @@ void Coffee(IApplicationBuilder app)
     });
 }
 
+List<Computer> computers = new List<Computer>();
+
+void AddComputer(IApplicationBuilder app)
+{
+    app.Run(async context =>
+    {
+        computers.Add(new Computer());
+        await context.Response.WriteAsync("Computer was added");
+    });
+}
+
+void Computer(IApplicationBuilder app)
+{
+    app.Map("/create", AddComputer);
+
+    app.Run(async context =>
+    {
+        var request = context.Request;
+        var response = context.Response;
+        response.Headers.ContentLanguage = "ru-RU";
+        response.ContentType = "text/plain; charset=utf-8";
+        string path = request.Path;
+        if (Regex.IsMatch(path, RegexPath))
+        {
+            string[] splitPath = path.Split('/');
+            Computer computer = computers[int.Parse(splitPath[1])];
+            string method = splitPath[2];
+            if (method == "on")
+            {
+                computer.IsWorking = true;
+                await response.WriteAsync("Computer turned on");
+            }
+            else if (method == "off")
+            {
+                computer.IsWorking= false;
+                await response.WriteAsync("Computer turned off");
+            }
+            else if (method == "name")
+            {
+                if (request.Method == "GET")
+                {
+                    await response.WriteAsync(computer.Name);
+                }
+                else
+                {
+                    computer.Name = splitPath[3];
+                }
+            }
+            else if (method == "status")
+            {
+                await response.WriteAsync(computer.IsWorking.ToString());
+            }
+        }
+    });
+}
+
 app.Map("/coffee", Coffee);
+app.Map("/computer", Computer);
 
 app.Run(async context => await context.Response.WriteAsync("SmartOffice API\nPath not found"));
 
