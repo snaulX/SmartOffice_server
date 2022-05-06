@@ -15,11 +15,11 @@ void AddCoffeeMachine(IApplicationBuilder app)
     });
 }
 
-app.Map("/coffee", appBuilder =>
+void Coffee(IApplicationBuilder app)
 {
-    appBuilder.Map("/create", AddCoffeeMachine);
+    app.Map("/create", AddCoffeeMachine);
 
-    appBuilder.Run(async context =>
+    app.Run(async context =>
     {
         string regexPath = @"^/([0-9]+)/(\w+)/?\w*$";
         var request = context.Request;
@@ -54,13 +54,19 @@ app.Map("/coffee", appBuilder =>
                     machine.Name = splitPath[3];
                 }
             }
+            else if (method == "make")
+            {
+                await machine.MakeCoffee(response);
+            }
             else
             {
                 await context.Response.WriteAsync("Function for CoffeeMachine not found");
             }
         }
     });
-});
+}
+
+app.Map("/coffee", Coffee);
 
 app.Run(async context => await context.Response.WriteAsync("SmartOffice API\nPath not found"));
 

@@ -6,7 +6,8 @@
         NoWater,
         NoCoffee,
         NoMilk,
-        Dirty
+        Dirty,
+        MakingCoffee
     }
 
     public class CoffeeMachine
@@ -22,6 +23,18 @@
             Status = CoffeeMachineStatus.OK;
         }
 
+        public async Task MakeCoffee(HttpResponse response)
+        {
+            if (Status == CoffeeMachineStatus.OK)
+            {
+                Status = CoffeeMachineStatus.MakingCoffee;
+                await Task.Delay(5000);
+                //await Waiter.WaitSeconds(5, async sec => await response.WriteAsync($"Осталось {sec} секунд"));
+                Status = CoffeeMachineStatus.OK;
+            }
+            else await response.WriteAsync("Кофемашина не исправна, чтобы готовить кофе");
+        }
+
         public string GetStatus()
         {
             return Status switch
@@ -31,6 +44,7 @@
                 CoffeeMachineStatus.NoCoffee => "Мало кофейных зёрен",
                 CoffeeMachineStatus.NoMilk => "Мало молока",
                 CoffeeMachineStatus.Dirty => "Загрязнена",
+                CoffeeMachineStatus.MakingCoffee => "Готовится кофе",
                 _ => throw new NotImplementedException(),
             };
         }
