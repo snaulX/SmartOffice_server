@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "C85lXDw+6bwsfh0YFGotQQ34JetsN9xZ+B11dtwCbJA=",
+  "Source": "SmartOfficeServer",
+  "BasePath": "_content/SmartOfficeServer",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
