@@ -1,25 +1,67 @@
-var builder = WebApplication.CreateBuilder(args);
+using SmartOfficeServer;
+using System.Text.RegularExpressions;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+var builder = WebApplication.CreateBuilder();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+List<CoffeeMachine> coffeeMachines = new List<CoffeeMachine>();
+
+void AddCoffeeMachine(IApplicationBuilder app)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.Run(async context =>
+    {
+        coffeeMachines.Add(new CoffeeMachine());
+        await context.Response.WriteAsync("Coffee machine added");
+    });
 }
 
-app.UseHttpsRedirection();
+app.Map("/coffee", appBuilder =>
+{
+    appBuilder.Map("/create", AddCoffeeMachine);
 
-app.UseAuthorization();
+    appBuilder.Run(async context =>
+    {
+        string regexPath = @"^/([0-9]+)/(\w+)/?\w*$";
+        var request = context.Request;
+        var response = context.Response;
+        response.Headers.ContentLanguage = "ru-RU";
+        response.ContentType = "text/plain; charset=utf-8";
+        string path = request.Path;
+        if (Regex.IsMatch(path, regexPath))
+        {
+            string[] splitPath = path.Split('/');
+            CoffeeMachine machine = coffeeMachines[int.Parse(splitPath[1])];
+            string method = splitPath[2];
+            if (method == "status")
+            {
+                if (request.Method == "GET")
+                {
+                    await response.WriteAsync(machine.GetStatus());
+                }
+                else
+                {
+                    machine.Status = Enum.Parse<CoffeeMachineStatus>(splitPath[3], ignoreCase: true);
+                }
+            }
+            else if (method == "name")
+            {
+                if (request.Method == "GET")
+                {
+                    await context.Response.WriteAsync(machine.Name);
+                }
+                else
+                {
+                    machine.Name = splitPath[3];
+                }
+            }
+            else
+            {
+                await context.Response.WriteAsync("Function for CoffeeMachine not found");
+            }
+        }
+    });
+});
 
-app.MapControllers();
+app.Run(async context => await context.Response.WriteAsync("SmartOffice API\nPath not found"));
 
 app.Run();
