@@ -29,7 +29,7 @@ async function makeCoffee(index, coffeeStatus) {
     }
 }
 
-const coffeeRouter = express.Router()
+const coffeeRouter = express.Router();
 coffeeRouter.use("/create", function(req, res) {
     machines.push({
         name: `Кофемашина #${machines.length}`,
@@ -50,7 +50,7 @@ coffeeRouter.get("/:id/:command", function(req, res) {
     }
 });
 // Handle POST requests like /coffee/0/make with request body: capuccino
-coffeeRouter.post("/:id/:command", function(req, res) {
+coffeeRouter.post("/:id/:command", express.text(), function(req, res) {
     const command = req.params.command;
     console.log(`POST request - index: ${req.params.id}; command: ${command}; data: ${req.body}`);
     if (command == "make") {
