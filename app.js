@@ -2,7 +2,14 @@ const express = require("express");
 const app = express();
 
 // enum
-const CoffeeStatus = { Ok: '', NoWater: '', NoMilk: '', NoCoffee: '', MakingCappucino: '', MakingLatte: '' };
+const CoffeeStatus = { 
+    Ok: 'Исправна', 
+    NoWater: 'Нет воды', 
+    NoMilk: 'Нет молока', 
+    NoCoffee: 'Нет кофейных зёрен',
+    MakingCappucino: 'Делает капучино',
+    MakingLatte: 'Делает латте' 
+};
 
 var machines = [];
 var computers = [];
@@ -31,17 +38,33 @@ coffeeRouter.use("/create", function(req, res) {
     res.send("Coffee created");
     console.log("Coffee created");
 });
+// Handle GET requests like /coffee/0/status
 coffeeRouter.get("/:id/:command", function(req, res) {
-
+    const command = req.params.command;
+    console.log(`GET request - index: ${req.params.id}; command: ${command}`);
+    const cm = machines[req.params.id];
+    if (command == "name") {
+        res.send(cm.name);
+    } else if (command == "status") {
+        res.send(cm.status);
+    }
 });
+// Handle POST requests like /coffee/0/make with request body: capuccino
 coffeeRouter.post("/:id/:command", function(req, res) {
+    const command = req.params.command;
+    console.log(`POST request - index: ${req.params.id}; command: ${command}; data: ${req.body}`);
     if (command == "make") {
         const coffeeType = req.body;
+        console.log(`Make ${coffeeType}`);
         res.send(`Make ${coffeeType}`);
         var status;
         if (coffeeType == 'latte') status = CoffeeStatus.MakingLatte;
         else status = CoffeeStatus.MakingCappucino;
-        makeCoffee(id, status);
+        makeCoffee(req.params.id, status);
+    } else if (command == "status") {
+        machines[req.params.id].status = req.body;
+    } else if (command == "name") {
+        machines[req.params.id].name = req.body;
     }
 });
 app.use("/coffee", coffeeRouter);
