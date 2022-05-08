@@ -63,6 +63,7 @@ coffeeRouter.post("/:id/:command", express.text(), function(req, res) {
         makeCoffee(req.params.id, status);
     } else if (command == "status") {
         machines[req.params.id].status = req.body;
+res.send("Status changed");
     } else if (command == "name") {
         machines[req.params.id].name = req.body;
     }
