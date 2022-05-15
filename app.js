@@ -3,12 +3,12 @@ const app = express();
 
 // enum
 const CoffeeStatus = { 
-    Ok: 'Исправна', 
-    NoWater: 'Нет воды', 
-    NoMilk: 'Нет молока', 
-    NoCoffee: 'Нет кофейных зёрен',
-    MakingCappucino: 'Делает капучино',
-    MakingLatte: 'Делает латте' 
+    Ok: 'Correct', 
+    NoWater: 'No water', 
+    NoMilk: 'No milk', 
+    NoCoffee: 'No coffee beans',
+    MakingCappucino: 'Making cappuccino',
+    MakingLatte: 'Making latte' 
 };
 
 var machines = [];
